@@ -49,20 +49,26 @@ struct ContentView: View {
         .frame(minWidth: 300, maxHeight: .infinity)
         .onAppear(perform: startNewGame)
         .onChange(of: answerLength) { _ in startNewGame() }
-        .alert("You win!", isPresented: $isGameOver) {
+        .alert(guesses.count >= maximumGuesses ? "You loose" : "You Win", isPresented: $isGameOver) {
             Button("Ok", action: startNewGame)
         } message: {
-            switch guesses.count {
-            case 0...10:
-                Text("Wonderfull score!!! Click OK to play again.")
-            case 11...20:
-                Text("Incredible!! Click OK to play again.")
-            default:
-                Text("Congratulations! Click OK to play again.")
+            if guesses.count >= maximumGuesses {
+                // Loose
+                Text("The secret number was \(answer). Click OK to play again.")
+            } else {
+                // Win
+                
+                switch guesses.count {
+                case 0...10:
+                    Text("Wonderfull score!!! Click OK to play again.")
+                case 11...20:
+                    Text("Incredible!! Click OK to play again.")
+                default:
+                    Text("Congratulations! Click OK to play again.")
+                }
             }
         }
-
-    }
+          }
     
     func startNewGame() {
         guard answerLength >= 3 && answerLength <= 8 else { return }
@@ -90,7 +96,7 @@ struct ContentView: View {
             guesses.insert(guess, at: 0)
         }
         
-        if result(for: guess).contains("\(answerLength)b") {
+        if result(for: guess).contains("\(answerLength)b") || guesses.count >= maximumGuesses {
             isGameOver = true
         }
         
