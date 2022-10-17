@@ -91,10 +91,15 @@ struct ContentView: View {
         
         let badCharacters = CharacterSet(charactersIn: "0123456789").inverted
         guard guess.rangeOfCharacter(from: badCharacters) == nil else { return }
+         
+        guard guesses.contains(String(guess)) == false else { return }
         
         withAnimation {
             guesses.insert(guess, at: 0)
         }
+        
+        
+        
         
         if result(for: guess).contains("\(answerLength)b") || guesses.count >= maximumGuesses {
             isGameOver = true
@@ -107,7 +112,6 @@ struct ContentView: View {
     func result(for guess: String) -> String {
         var bulls = 0
         var cows = 0
-        
         
         let guessLetter = Array(guess)
         let answerLetters = Array(answer)
