@@ -52,13 +52,22 @@ struct ContentView: View {
         .alert("You win!", isPresented: $isGameOver) {
             Button("Ok", action: startNewGame)
         } message: {
-            Text("Congratulations! Click OK to play again.")
+            switch guesses.count {
+            case 0...10:
+                Text("Wonderfull score!!! Click OK to play again.")
+            case 11...20:
+                Text("Incredible!! Click OK to play again.")
+            default:
+                Text("Congratulations! Click OK to play again.")
+            }
         }
+
     }
     
     func startNewGame() {
         guard answerLength >= 3 && answerLength <= 8 else { return }
         guess = ""
+        answer = ""
         guesses.removeAll()
         
         let numbers = (0...9).shuffled()
@@ -67,6 +76,7 @@ struct ContentView: View {
             answer.append(String(numbers[i]))
         }
         
+        print(answer)
     }
     
     func submitGuess() {
@@ -97,6 +107,7 @@ struct ContentView: View {
         let answerLetters = Array(answer)
         
         for (index, letter) in guessLetter.enumerated() {
+            
             if letter == answerLetters[index] {
                 bulls += 1
             } else if answerLetters.contains(letter) {
