@@ -13,7 +13,12 @@ struct ContentView: View {
     @State private var guesses = [String]()
     @State private var answer = ""
     @State private var isGameOver = false
-    let answerLength = 4
+    
+    @AppStorage("maximumGuesses") var maximumGuesses = 100
+    @AppStorage("answerLength") var answerLength = 4
+    @AppStorage("enableHardMode") var enableHardMode = false
+    @AppStorage("showGuessCount") var showGuessCount = false
+    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -22,20 +27,28 @@ struct ContentView: View {
                 Button("Go", action: submitGuess)
             }
             .padding()
-            List(guesses, id: \.self) { guess in
+            List(0..<guesses.count, id: \.self) { index in
+                let guess = guesses[index]
+                let shouldShowResult = (enableHardMode == false || (enableHardMode && index == 0))
                 HStack {
                     Text(guess)
                     Spacer()
-                    Text(result(for: guess))
+                    if shouldShowResult {
+                        Text(result(for: guess))
+                    }
                 }
             }
             .listStyle(.sidebar)
+            if showGuessCount {
+                Text("Guesses: \(guesses.count)/\(maximumGuesses).")
+            }
             Spacer()
         }
         .navigationTitle("Cows and Bulls")
         .frame(width: 250)
         .frame(minWidth: 300, maxHeight: .infinity)
         .onAppear(perform: startNewGame)
+        .onChange(of: answerLength) { _ in startNewGame() }
         .alert("You win!", isPresented: $isGameOver) {
             Button("Ok", action: startNewGame)
         } message: {
@@ -44,6 +57,7 @@ struct ContentView: View {
     }
     
     func startNewGame() {
+        guard answerLength >= 3 && answerLength <= 8 else { return }
         guess = ""
         guesses.removeAll()
         
