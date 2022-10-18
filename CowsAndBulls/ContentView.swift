@@ -7,6 +7,28 @@
 
 import SwiftUI
 
+struct ColorResult: ViewModifier {
+    var b: Int
+    var c: Int
+    var answerLength: Int
+    
+    func body(content: Content) -> some View {
+        if (c == answerLength) {
+            content.foregroundColor(.green)
+        } else if (c + b > 0 && c + b < answerLength) {
+            content.foregroundColor(.yellow)
+        } else {
+            content.foregroundColor(.red)
+        }
+    }
+}
+
+extension View {
+    func colorResult(bulls: Int, cows: Int, answerLength: Int) -> some View {
+        modifier(ColorResult(b: bulls, c: cows, answerLength: answerLength))
+    }
+}
+
 struct ContentView: View {
     
     @State private var guess = ""
@@ -34,7 +56,11 @@ struct ContentView: View {
                     Text(guess)
                     Spacer()
                     if shouldShowResult {
-                        Text(result(for: guess))
+                        let r = result(for: guess)
+                        let b = r.bulls
+                        let c = r.cows
+                        Text("\(b)b \(c)c")
+                            .colorResult(bulls: b, cows: c, answerLength: answerLength)
                     }
                 }
             }
@@ -101,7 +127,7 @@ struct ContentView: View {
         
         
         
-        if result(for: guess).contains("\(answerLength)b") || guesses.count >= maximumGuesses {
+        if result(for: guess).bulls == answerLength || guesses.count >= maximumGuesses {
             isGameOver = true
         }
         
@@ -109,7 +135,7 @@ struct ContentView: View {
         guess = ""
     }
     
-    func result(for guess: String) -> String {
+    func result(for guess: String) -> (bulls: Int, cows: Int) {
         var bulls = 0
         var cows = 0
         
@@ -125,7 +151,7 @@ struct ContentView: View {
             }
         }
         
-        return "\(bulls)b \(cows)c"
+        return (bulls, cows)
     }
 }
 
